@@ -33,5 +33,6 @@
     <string name="compress_result_input_output">input:%1$s,size:%2$s,output:%3$s,size:%4$s</string>
     <string name="path">video path:%1$s,size:%2$s</string>
     <string name="dont_have_app_to_open_file">cannot open file</string>
+    <string name="search_video">buscar video</string>
 
 </resources>
