@@ -21,6 +21,8 @@ import com.czh.testmpeg.permission.PermissionsChecker;
 import com.czh.testmpeg.videorecord.CameraActivity;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,25 +33,24 @@ import me.drakeet.materialdialog.MaterialDialog;
  * http://androidwarzone.blogspot.hk/2011/12/ffmpeg4android.html
  * Video Compress:
  * // simple regular commad
- * ffmpeg -y -i /sdcard/videokit/in.mp4 -strict experimental -s 160x120 -r 25 -vcodec mpeg4 -b 150k -ab 48000 -ac 2 -ar 22050 /sdcard/videokit/out.mp4
+ * ffmpeg -y -i /sdcard/sedema_compressor/in.mp4 -strict experimental -s 160x120 -r 25 -vcodec mpeg4 -b 150k -ab 48000 -ac 2 -ar 22050 /sdcard/sedema_compressor/out.mp4
  * <p/>
  * // compress with h264 (to support chrome)
- * ffmpeg -y -i /sdcard/videokit/in.mp4 -strict experimental -vcodec libx264 -preset ultrafast -crf 24 -acodec aac -ar 44100 -ac 2 -b:a 96k -s 320x240 -aspect 4:3 /sdcard/videokit/out3.mp4
+ * ffmpeg -y -i /sdcard/sedema_compressor/in.mp4 -strict experimental -vcodec libx264 -preset ultrafast -crf 24 -acodec aac -ar 44100 -ac 2 -b:a 96k -s 320x240 -aspect 4:3 /sdcard/sedema_compressor/out3.mp4
  * // As complex command, don't forget to use setCommandComplex(complexCommand)
  * // Use this format to support files that contains spaces and special characters
  * String[] complexCommand = {"ffmpeg","-y" ,"-i", "/sdcard/video kit/in.mp4","-strict","experimental","-s", "160x120","-r","25", "-vcodec", "mpeg4", "-b", "150k", "-ab","48000", "-ac", "2", "-ar", "22050", "/sdcard/video kit/out.mp4"};
  * The parameters that control the quality are the -s (resolution, currently set on 160x120) and the -b (the bitrate, currently set on 150k).
  * Increase them, e.g -s 480x320
  * And -b 900k
- * To improve quality (and get less compression).﻿
+ * To improve quality (and get less compression).
  */
 public class MainActivity extends AppCompatActivity {
     private final String TAG = getClass().getSimpleName();
     private Compressor mCompressor;
     ActivityMainBinding mBinding;
-    //    private String currentInputVideoPath = "/mnt/sdcard/videokit/in.mp4";
     private String currentInputVideoPath = "";
-    private String currentOutputVideoPath = "/mnt/sdcard/videokit/out.mp4";
+    private String currentOutputVideoPath = "/mnt/sdcard/sedema_compressor/" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".mp4";
     String cmd = "-y -i " + currentInputVideoPath + " -strict -2 -vcodec libx264 -preset ultrafast " +
             "-crf 24 -acodec aac -ar 44100 -ac 2 -b:a 96k -s 640x480 -aspect 16:9 " + currentOutputVideoPath;
     //相机权限,录制音频权限,读写sd卡的权限,都为必须,缺一不可
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE};
+    private static final int GALLERY_VIDEO_ACTIVITY_REQUEST_CODE = 200;
     private static final int REQUEST_CODE_FOR_PERMISSIONS = 0;//
     private static final int REQUEST_CODE_FOR_RECORD_VIDEO = 1;//录制视频请求码
     public static final int RESULT_CODE_FOR_RECORD_VIDEO_SUCCEED = 2;//视频录制成功
@@ -77,6 +79,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 CameraActivity.startActivityForResult(MainActivity.this, REQUEST_CODE_FOR_RECORD_VIDEO);
+            }
+        });
+
+        mBinding.btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openGallery();
             }
         });
 
@@ -121,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
 
     private void execCommand(String cmd) {
         File mFile = new File(currentOutputVideoPath);
@@ -177,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
             public void onExecProgress(String message) {
                 Log.i(TAG, "progress " + message);
                 textAppend(getString(R.string.compress_progress, message));
-                Log.v(TAG,getString(R.string.compress_progress,getProgress(message)));
+                Log.v(TAG, getString(R.string.compress_progress, getProgress(message)));
 
 
             }
@@ -194,6 +202,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void openGallery() {
+        Intent galleryIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT, Uri.parse(Intent.CATEGORY_OPENABLE));
+        galleryIntent.setType("video/*");
+
+        galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
+        startActivityForResult(galleryIntent, GALLERY_VIDEO_ACTIVITY_REQUEST_CODE);
     }
 
     @Override
@@ -220,24 +236,51 @@ public class MainActivity extends AppCompatActivity {
                     String time = retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);//获取视频时长
                     //7680
                     try {
-                        videoLength = Double.parseDouble(time)/1000.00;
+                        videoLength = Double.parseDouble(time) / 1000.00;
                     } catch (Exception e) {
                         e.printStackTrace();
                         videoLength = 0.00;
                     }
-                    Log.v(TAG, "videoLength = "+videoLength + "s");
+                    Log.v(TAG, "videoLength = " + videoLength + "s");
                     refreshCurrentPath();
                 }
             } else if (resultCode == RESULT_CODE_FOR_RECORD_VIDEO_FAILED) {
                 //录制失败
                 currentInputVideoPath = "";
             }
-        }
+        } else if (requestCode == GALLERY_VIDEO_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                if (data.getData() != null) {
+                    String videoPath = data.getData().getPath();
+                    String fileName = videoPath.substring(videoPath.lastIndexOf("/") + 1,
+                            videoPath.length());
+                    String currentOpenVideoPath = "/mnt/sdcard/sedema_compressor/";
+                    currentInputVideoPath = currentOpenVideoPath + fileName;
 
+                    MediaMetadataRetriever retr = new MediaMetadataRetriever();
+                    retr.setDataSource(currentInputVideoPath);
+                    String time = retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);//获取视频时长
+
+                    try {
+                        videoLength = Double.parseDouble(time) / 1000.00;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        videoLength = 0.00;
+                    }
+                    Log.v(TAG, "videoLength = " + videoLength + "s");
+                    refreshCurrentPath();
+                }
+
+            } else if (resultCode == RESULT_CANCELED) {
+                // User cancelled the image capture
+            } else {
+                // Image capture failed, advise user
+            }
+        }
     }
 
     private void refreshCurrentPath() {
-        mBinding.tvVideoFilePath.setText(getString(R.string.path,currentInputVideoPath,getFileSize(currentInputVideoPath)));
+        mBinding.tvVideoFilePath.setText(getString(R.string.path, currentInputVideoPath, getFileSize(currentInputVideoPath)));
         cmd = "-y -i " + currentInputVideoPath + " -strict -2 -vcodec libx264 -preset ultrafast " +
                 "-crf 24 -acodec aac -ar 44100 -ac 2 -b:a 96k -s 480x320 -aspect 16:9 " + currentOutputVideoPath;
         mBinding.etCommand.setText(cmd);
@@ -378,7 +421,7 @@ public class MainActivity extends AppCompatActivity {
             Double seconds = Double.parseDouble(temp[1]) * 60 + Double.parseDouble(temp[2]);
             Log.v(TAG, "current second = " + seconds);
             if (0 != videoLength) {
-                return seconds / videoLength+"";
+                return seconds / videoLength + "";
             }
             return "0";
         }

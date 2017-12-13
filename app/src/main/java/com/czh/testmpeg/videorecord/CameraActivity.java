@@ -49,6 +49,7 @@ import com.czh.testmpeg.videocompress.MainActivity;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -464,15 +465,15 @@ public class CameraActivity extends AppCompatActivity {
         }
 
         mediaRecorder.setProfile(CamcorderProfile.get(quality));
-        File file = new File("/mnt/sdcard/videokit");
+        File file = new File("/mnt/sdcard/sedema_compressor");
         if (!file.exists()) {
             file.mkdirs();
         }
         Date d = new Date();
         String timestamp = String.valueOf(d.getTime());
-//        url_file = Environment.getExternalStorageDirectory().getPath() + "/videoKit" + timestamp + ".mp4";
-        url_file = "/mnt/sdcard/videokit/in.mp4";
-//        url_file = "/mnt/sdcard/videokit/" + timestamp + ".mp4";
+//        url_file = Environment.getExternalStorageDirectory().getPath() + "/sedema_compressor" + timestamp + ".mp4";
+        url_file = "/mnt/sdcard/sedema_compressor/civar.mp4";
+//        url_file = "/mnt/sdcard/sedema_compressor/" + timestamp + ".mp4";
 
         File file1 = new File(url_file);
         if (file1.exists()) {
