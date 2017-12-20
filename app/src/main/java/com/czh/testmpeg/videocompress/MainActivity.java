@@ -93,6 +93,12 @@ public class MainActivity extends AppCompatActivity {
         mBinding.btnRun.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                currentOutputVideoPath = "/mnt/sdcard/sedema_compressor/" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".mp4";
+                cmd = "-y -i " + currentInputVideoPath + " -strict -2 -vcodec libx264 -preset ultrafast " +
+                        "-crf 24 -acodec aac -ar 44100 -ac 2 -b:a 96k -s 640x480 -aspect 16:9 " + currentOutputVideoPath;
+                mBinding.etCommand.setText(cmd);
+
                 String command = mBinding.etCommand.getText().toString();
                 if (TextUtils.isEmpty(command)) {
                     Toast.makeText(MainActivity.this, getString(R.string.compree_please_input_command)
