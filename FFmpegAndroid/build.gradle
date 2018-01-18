@@ -3,7 +3,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: "com.jfrog.bintray"
 
 // This is the library version used when deploying the artifact
-version = VERSION_NAME
+//version = VERSION_NAME
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion as Integer
@@ -36,38 +36,38 @@ dependencies {
     androidTestCompile 'com.squareup.assertj:assertj-android:1.0.0'
 }
 
-group = GROUP
+//group = GROUP
 
 install {
     repositories.mavenInstaller {
         // This generates POM.xml with proper parameters
         pom {
             project {
-                packaging POM_PACKAGING
+                //packaging POM_PACKAGING
 
                 // Add your description here
                 name 'FFmpeg Android'
-                description = POM_DESCRIPTION
-                url POM_URL
+                //description = POM_DESCRIPTION
+                //url POM_URL
 
                 // Set your license
                 licenses {
                     license {
-                        name POM_LICENCE_NAME
-                        url POM_LICENCE_URL
+                        //name POM_LICENCE_NAME
+                        //url POM_LICENCE_URL
                     }
                 }
                 developers {
                     developer {
-                        id POM_DEVELOPER_ID
-                        name POM_DEVELOPER_NAME
+                        //id POM_DEVELOPER_ID
+                        //name POM_DEVELOPER_NAME
                         email 'hitesh@writingminds.com'
                     }
                 }
                 scm {
-                    connection POM_SCM_URL
-                    developerConnection POM_SCM_URL
-                    url POM_URL
+                    //connection POM_SCM_URL
+                    //developerConnection POM_SCM_URL
+                    //url POM_URL
 
                 }
             }
@@ -107,8 +107,8 @@ bintray {
         repo = "maven"
         // it is the name that appears in bintray when logged
         name = "ffmpeg-android"
-        websiteUrl = POM_URL
-        vcsUrl = POM_SCM_URL
+        //websiteUrl = POM_URL
+        //vcsUrl = POM_SCM_URL
         licenses = ["GPL-3.0"]
         publish = true
         version {
